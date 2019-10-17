@@ -1,29 +1,61 @@
-import React from 'react';
-import {View, Text, StyleSheet, Button, Image} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Dimensions,
+  Image,
+  ScrollView,
+} from 'react-native';
 
 import CustomText from '../components/CustomText';
 import Colors from '../constants/colors';
 
 import MainButton from '../components/MainButton';
 const GameOverScreen = props => {
+  const [deviceWidth, setDeviceWidth] = useState(
+    Dimensions.get('window').width * 0.7,
+  );
+  const [deviceHeight, setDeviceHeight] = useState(
+    Dimensions.get('window').height * 0.7,
+  );
+  useEffect(() => {
+    const updateValues = () => {
+      setDeviceHeight(Dimensions.get('window').height * 0.7);
+      setDeviceWidth(Dimensions.get('window').width * 0.7);
+    };
+    Dimensions.addEventListener('change', updateValues);
+    return () => {
+      Dimensions.removeEventListener('change', updateValues);
+    };
+  });
+
   return (
-    <View style={styles.screen}>
-      <CustomText style={styles.title}>The Game is Over!</CustomText>
-      <View style={styles.imageContainer}>
-        <Image
-          source={require('../assets/success.png')}
-          resizeMode="cover"
-          style={styles.image}
-        />
+    <ScrollView>
+      <View style={styles.screen}>
+        <CustomText style={styles.title}>The Game is Over!</CustomText>
+        <View style={styles.imageContainer}>
+          <Image
+            source={require('../assets/success.png')}
+            resizeMode="cover"
+            style={{
+              ...styles.image,
+              width: deviceWidth * 0.7,
+              height: deviceWidth * 0.7,
+              borderRadius: (deviceWidth * 0.7) / 2,
+              marginVertical: deviceHeight / 30,
+            }}
+          />
+        </View>
+        <CustomText style={styles.message}>
+          Your phone needed{' '}
+          <Text style={styles.highlight}>{props.roundsNumber}</Text> rounds to
+          guess the number{' '}
+          <Text style={styles.highlight}>{props.userNumber} </Text>
+        </CustomText>
+        <MainButton onPress={props.onRestart}>NEW GAME</MainButton>
       </View>
-      <CustomText style={styles.message}>
-        Your phone needed{' '}
-        <Text style={styles.highlight}>{props.roundsNumber}</Text> rounds to
-        guess the number{' '}
-        <Text style={styles.highlight}>{props.userNumber} </Text>
-      </CustomText>
-      <MainButton onPress={props.onRestart}>NEW GAME</MainButton>
-    </View>
+    </ScrollView>
   );
 };
 const styles = StyleSheet.create({
@@ -38,17 +70,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   message: {
-    marginVertical: 15,
+    marginVertical: Dimensions.get('window').height / 60,
     textAlign: 'center',
-    fontSize: 20,
+    fontSize: Dimensions.get('window').height < 400 ? 16 : 20,
   },
   imageContainer: {
-    width: 300,
-    height: 300,
-    borderRadius: 150,
     borderColor: 'black',
     overflow: 'hidden',
-    marginVertical: 15,
   },
   image: {
     width: '100%',
